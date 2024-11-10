@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SQL Trigger Examples for Bakery Database</title>
+  <style>
+    /* Main styling */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f4f6;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #ffffff;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      text-align: center;
+      color: #1a73e8;
+    }
+
+    pre {
+      background-color: #272822;
+      color: #f8f8f2;
+      padding: 15px;
+      border-radius: 5px;
+      overflow: auto;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    h2 {
+      color: #1a73e8;
+      font-size: 1.25rem;
+      margin-top: 20px;
+    }
+
+    p {
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .trigger-block {
+      background-color: #edf2f7;
+      padding: 10px;
+      border-left: 4px solid #1a73e8;
+      margin-bottom: 20px;
+      border-radius: 5px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 600px) {
+      .container {
+        padding: 10px;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      pre {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>SQL Triggers for Bakery Database</h1>
+    
+    <div class="trigger-block">
+      <h2>SQL Code:</h2>
+      <pre>
+-- TRIGGER TR1 : Prevents modification of the cake number or ingredient count
+CREATE TRIGGER TR1_PreventModificationGâteau
+BEFORE UPDATE ON Gâteau
+FOR EACH ROW
+BEGIN
+    IF OLD.NumGâteau <> NEW.NumGâteau THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Modification du numéro de gâteau interdite.';
+    END IF;
+    DECLARE nbIngrédients INT;
+    SELECT COUNT(*) INTO nbIngrédients FROM RéalisationGâteau WHERE NumGâteau = NEW.NumGâteau;
+    IF nbIngrédients <> (SELECT COUNT(*) FROM RéalisationGâteau WHERE NumGâteau = OLD.NumGâteau) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Modification du nombre d''ingrédients interdite.';
+    END IF;
+END;
+
+-- Other triggers follow similar format as above...
+      </pre>
+    </div>
+
+    <div class="trigger-block">
+      <h2>Trigger Descriptions:</h2>
+      <p><strong>TR1:</strong> Ensures the cake number and ingredient count cannot be modified.</p>
+      <p><strong>TR2:</strong> Prevents insertion of an ingredient with an already existing name.</p>
+      <p><strong>TR3:</strong> Restricts adding cakes with identical names within the same category.</p>
+      <p><strong>TR4:</strong> Limits cake additions to a maximum of 20.</p>
+      <p><strong>TR5:</strong> Prevents deletion of a cake if it has associated ingredients.</p>
+      <p><strong>TR6:</strong> Updates the stock of ingredients and ingredient count whenever a new ingredient is added.</p>
+    </div>
+  </div>
+</body>
+</html>
